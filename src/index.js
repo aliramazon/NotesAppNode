@@ -1,7 +1,9 @@
 const express = require('express');
 const dotenv = require('dotenv');
 
+const AppError = require('./utils/appError.js');
 const taskRouter = require('./routes/taskRoutes');
+const userRouter = require('./routes/userRoutes');
 
 const globalErrorHandler = require('./utils/globalErrorHandler');
 
@@ -16,6 +18,12 @@ app.use(express.json());
 
 // API Routes
 app.use('/api/v1/tasks', taskRouter);
+app.use('/api/v1/users', userRouter);
+
+app.all('*', (req, res, next) => {
+    next(new AppError(`Cant't find ${req.originalUrl} on this server`, 404));
+});
+
 app.use(globalErrorHandler);
 
 app.listen(port, () => {
