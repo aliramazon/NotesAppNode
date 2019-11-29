@@ -44,3 +44,12 @@ exports.signin = catchAsync(async (req, res, next) => {
 
     createAndSendToken(user, 200, req, res);
 });
+
+exports.getMe = catchAsync(async (req, res, next) => {
+    res.status(200).json({
+        status: 'success',
+        data: {
+            user: req.user,
+        },
+    });
+});
