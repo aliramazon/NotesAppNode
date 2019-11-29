@@ -1,18 +1,10 @@
-const jwt = require('jsonwebtoken');
 const User = require('../models/userModel');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
 
-// Sign Token
-const signToken = (id) => {
-    return jwt.sign({ id }, process.env.JWT_SECRET, {
-        expiresIn: process.env.JWT_EXPIRES_IN,
-    });
-};
-
 // Create and Send Token
-const createAndSendToken = (user, statusCode, req, res) => {
-    const token = signToken(user._id);
+const createAndSendToken = async (user, statusCode, req, res) => {
+    const token = await user.signToken();
     user.password = undefined;
 
     res.status(statusCode).json({
