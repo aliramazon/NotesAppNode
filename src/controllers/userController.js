@@ -46,10 +46,20 @@ exports.signin = catchAsync(async (req, res, next) => {
 });
 
 exports.getMe = catchAsync(async (req, res, next) => {
+    req.user.password = undefined;
     res.status(200).json({
         status: 'success',
         data: {
             user: req.user,
         },
+    });
+});
+
+exports.deleteMe = catchAsync(async (req, res, next) => {
+    await User.findByIdAndDelete(req.user._id);
+
+    res.status(204).json({
+        status: 'success',
+        data: null,
     });
 });
