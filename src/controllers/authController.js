@@ -36,3 +36,10 @@ exports.isAuthenticated = catchAsync(async (req, res, next) => {
     req.user = parsedUser;
     next();
 });
+
+exports.logout = (req, res) => {
+    res.status(200).json({
+        status: 'success',
+        token: 'loggedout',
+    });
+};
