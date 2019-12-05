@@ -3,44 +3,65 @@ const validator = require('validator');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
-const userSchema = new mongoose.Schema({
-    name: {
-        type: String,
-        required: [true, 'This field cannot be empty'],
-        minlength: [3, 'Name must contain at least 3 characters'],
-        trim: true,
-    },
-    email: {
-        type: String,
-        required: [true, 'Email field cannot be empty'],
-        validate: [validator.isEmail, 'Please provide a valid email'],
-        unique: true,
-        lovercase: true,
-        trim: true,
-    },
-    password: {
-        type: String,
-        required: [true, 'Please provide a password'],
-        minlength: [8, 'Password must contain at least 8 characters'],
-        trim: true,
-        validate: {
-            validator: function() {
-                return !this.password.toLowerCase().includes('password');
-            },
-            message: 'Password must not contain a word password',
+const userSchema = new mongoose.Schema(
+    {
+        name: {
+            type: String,
+            required: [true, 'This field cannot be empty'],
+            minlength: [3, 'Name must contain at least 3 characters'],
+            trim: true,
         },
-    },
+        email: {
+            type: String,
+            required: [true, 'Email field cannot be empty'],
+            validate: [validator.isEmail, 'Please provide a valid email'],
+            unique: true,
+            lovercase: true,
+            trim: true,
+        },
+        password: {
+            type: String,
+            required: [true, 'Please provide a password'],
+            minlength: [8, 'Password must contain at least 8 characters'],
+            trim: true,
+            validate: {
+                validator: function() {
+                    return !this.password.toLowerCase().includes('password');
+                },
+                message: 'Password must not contain a word password',
+            },
+        },
 
-    passwordConfirm: {
-        type: String,
-        required: [true, 'Please provide a password confirmation'],
-        validate: {
-            validator: function() {
-                return this.passwordConfirm === this.password;
+        passwordConfirm: {
+            type: String,
+            required: [true, 'Please provide a password confirmation'],
+            validate: {
+                validator: function() {
+                    return this.passwordConfirm === this.password;
+                },
+                message: 'Password confirmation does not match the password',
             },
-            message: 'Password confirmation does not match the password',
         },
     },
+    {
+        toJSON: { virtuals: true },
+        toObject: { virtuals: true },
+    },
+);
+
+userSchema.virtual('tasks', {
+    ref: 'Task',
+    localField: '_id',
+    foreignField: 'user',
+});
+
+userSchema.pre(/^find/, function(next) {
+    this.populate({
+        path: 'tasks',
+        select: 'description',
+    });
+
+    next();
 });
 
 userSchema.pre('save', async function(next) {
