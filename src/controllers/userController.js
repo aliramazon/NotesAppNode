@@ -56,7 +56,7 @@ exports.getMe = catchAsync(async (req, res, next) => {
 });
 
 exports.deleteMe = catchAsync(async (req, res, next) => {
-    await User.findByIdAndDelete(req.user._id);
+    await User.findOneAndDelete({ _id: req.user._id });
 
     res.status(204).json({
         status: 'success',

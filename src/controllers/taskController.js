@@ -14,7 +14,7 @@ exports.createTask = catchAsync(async (req, res, next) => {
 });
 
 exports.getAllTasks = catchAsync(async (req, res, next) => {
-    const tasks = await Task.find();
+    const tasks = await Task.find({ user: req.user._id });
 
     res.status(200).json({
         status: 'success',
@@ -26,7 +26,7 @@ exports.getAllTasks = catchAsync(async (req, res, next) => {
 });
 
 exports.getTask = catchAsync(async (req, res, next) => {
-    const task = await Task.findById(req.params.id);
+    const task = await Task.findOne({ user: req.user._id, _id: req.params.id });
 
     if (!task) {
         return next(new AppError('No task found with that ID', 404));
@@ -41,10 +41,14 @@ exports.getTask = catchAsync(async (req, res, next) => {
 });
 
 exports.updateTask = catchAsync(async (req, res, next) => {
-    const updatedTask = await Task.findByIdAndUpdate(req.params.id, req.body, {
-        new: true,
-        runValidators: true,
-    });
+    const updatedTask = await Task.findOneAndUpdate(
+        { _id: req.params.id, user: req.user._id },
+        req.body,
+        {
+            new: true,
+            runValidators: true,
+        },
+    );
 
     if (!updatedTask) {
         return next(new AppError('No task found with that ID', 404));
@@ -59,7 +63,10 @@ exports.updateTask = catchAsync(async (req, res, next) => {
 });
 
 exports.deleteTask = catchAsync(async (req, res, next) => {
-    const taskToDelete = await Task.findByIdAndDelete(req.params.id);
+    const taskToDelete = await Task.findOneAndDelete({
+        _id: req.params.id,
+        user: req.user._id,
+    });
 
     if (!taskToDelete) {
         return next(new AppError('No task found with that ID', 404));

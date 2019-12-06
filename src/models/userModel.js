@@ -3,6 +3,8 @@ const validator = require('validator');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
+const Task = require('./taskModel');
+
 const userSchema = new mongoose.Schema(
     {
         name: {
@@ -88,6 +90,17 @@ userSchema.methods.signToken = async function() {
         expiresIn: process.env.JWT_EXPIRES_IN,
     });
 };
+
+// userSchema.pre('findOneAndDelete', async function(next) {
+//     this.user = await this.findOne();
+//     console.log(this.user);
+//     next();
+// });
+
+userSchema.pre('findOneAndDelete', async function() {
+    this.user = await this.findOne();
+    await Task.deleteMany({ user: this.user._id });
+});
 
 const User = mongoose.model('User', userSchema);
 

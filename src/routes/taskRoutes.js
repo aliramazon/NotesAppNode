@@ -5,7 +5,6 @@ const authController = require('../controllers/authController');
 const router = express.Router();
 
 router.use(authController.isAuthenticated);
-
 router
     .route('/')
     .get(taskController.getAllTasks)
